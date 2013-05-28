@@ -38,13 +38,11 @@ def make_grd(rootdir = '../project/',
     
     # create an exponential depth profile, with decay radius Rh, and a value
     # of Hmin and Hmax at the river and ocean ends, respectively.
-    cff1 = (grd.y_rho - grd.y_rho[5])*alpha + Hmin
+    cff1 = (grd.y_rho - grd.y_rho[1])*alpha + Hmin
+    cff1 += 0.01 * np.random.randn(*grd.y_rho.shape) * cff1
+    cff1[0] = cff1[1]
     cff2 = Hmin
     grd.h = np.maximum(cff1, cff2)
-    
-    grd.mask = np.ones_like(grd.h)
-    grd.mask[:5, :30] = 0
-    grd.mask[:5, 35:] = 0
     
     plt.ioff()
     fig = plt.figure()
@@ -67,11 +65,11 @@ def make_grd(rootdir = '../project/',
     
     grd.proj = None  # define non-georeference grid
     print 'Writing netcdf GRD file..'
-    octant.roms.write_grd(grd, os.path.join(rootdir, 'estuary_grd.nc'), verbose=True)
+    octant.roms.write_grd(grd, os.path.join(rootdir, 'shelfstrat_grd.nc'), verbose=True)
 
 if __name__ == '__main__':
     from os.path import expanduser
     home = expanduser("~")
     
     # make_grd(rootdir='../project/test_grid')
-    make_grd(rootdir=os.path.join(home, 'Projects/shelfplume/project/test'), shp=(131, 259))
+    make_grd(rootdir=os.path.join(home, 'Projects/shelfstrat/project/test'), shp=(131, 259))
