@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 # encoding: utf-8
 """
 run_warner_case.py
@@ -45,7 +45,7 @@ class ROMS_in(object):
         self.variables[key] = str(val)
 
 
-def run_warner_case(rootdir='./project', 
+def run_case(rootdir='./project', 
                     Uriver=0.1, 
                     Utide=1.0,
                     Href=10.0,
@@ -91,14 +91,13 @@ def run_warner_case(rootdir='./project',
     outfile = os.path.join(rootdir, 'ocean_estuary.out')
     rin_3d.write(infile)
     print ' ### Running 3D ROMS...'
-    os.system('./project/coawstS < %s > %s' % (infile, outfile))
-    
-    # # Create animation
-    # if redo or not os.path.exists(os.path.join(rootdir, 'estuary.mp4')):
-    #     make_xsec_movie(rootdir=rootdir)
-        
+    os.system('mpirun -np 8 ./project/coawstS < %s > %s' % (infile, outfile))
 
 
 if __name__ == '__main__':
-    run_warner_case(rootdir='./archive/test')
-
+    import argparse
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--foo', type=float, default=42.0, help='FOO!')
+    args = parser.parse_args()
+    print args
