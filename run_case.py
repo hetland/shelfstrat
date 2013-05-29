@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/bin/env python2.7
 # encoding: utf-8
 """
 run_warner_case.py
@@ -82,8 +82,12 @@ def run_case(rootdir='./project',
     infile = os.path.join(rootdir, 'ocean_shelfstrat.in')
     outfile = os.path.join(rootdir, 'ocean_shelfstrat.out')
     rin_3d.write(infile)
+    # os.system('/usr/mpi/gcc/openmpi-1.4.3/bin/mpiexec -np 8 ./project/coawstM %s' % infile)
+    # os.system('./project/coawstS < %s' % infile)
+    
     print ' ### Running 3D ROMS...'
-    os.system('/opt/openmpi/gfortran/bin/mpirun -np 8 ./project/coawstM %s > %s' % (infile, outfile))
+    return 0
+    
 
 
 if __name__ == '__main__':
@@ -94,8 +98,8 @@ if __name__ == '__main__':
                         help='Horizontal stratification parameter (default=1e-6)')
     parser.add_argument('--N2', type=float, default=1e-4, 
                         help='Vertical stratification parameter (default=1e-6)')
+    parser.add_argument('--rootdir', type=str, default='./project/test', 
+                        help='Simulation root directory.')
     args = parser.parse_args()
     
-    rootdir = os.path.join('./simulations', 'shelfstrat_M2%4.2f_N2%4.2f' % (args.M2, args.N2))
-    
-    run_case(rootdir, M20=args.M2, N20=args.N2)
+    run_case(rootdir=args.rootdir, M20=args.M2, N20=args.N2)

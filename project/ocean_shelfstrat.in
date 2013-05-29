@@ -47,7 +47,7 @@
 ! Input variable information file name.  This file needs to be processed
 ! first so all information arrays can be initialized properly.
 
-     VARNAME = /Users/rob/Projects/shelfplume/project/varinfo.dat
+     VARNAME = ../varinfo.dat
 
 ! Grid dimension parameters. See notes below in the Glossary for how to set
 ! these parameters correctly.
