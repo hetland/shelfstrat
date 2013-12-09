@@ -33,6 +33,16 @@
 #define NORTH_TGRADIENT
 #define NORTH_M3GRADIENT
 
+#define M2CLIMATOLOGY
+#define M2CLM_NUDGING
+#define ANA_M2CLIMA
+
+#define M3CLIMATOLOGY
+#define M3CLM_NUDGING
+#define ANA_M3CLIMA
+
+#define ANA_NUDGCOEF
+
 #define GLS_MIXING
 #define CANUTO_A
 #define N2S2_HORAVG

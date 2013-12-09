@@ -48,15 +48,18 @@ class ROMS_in(object):
 
 
 def run_case(rootdir='./project',
-             M20=1e-6, N20=1e-4,
-             shp = (30, 128, 256)):
+             M20=1e-6, N20=1e-4, f=1e-4,
+             shp = (30, 128, 256),
+             dt=30.0, ndays=30):
     
     # Make grid
     grdshp = (shp[1]+3, shp[2]+3)
-    make_grd(rootdir, Hmin=5.0, alpha=0.001, f=1e-4,
+    make_grd(rootdir, Hmin=5.0, alpha=0.001, f=f,
              dx=1e3, dy=1e3, shp=grdshp)
     
     make_frc(rootdir, s_rho=shp[0], sustr0=0.0, svstr0=0.0, Tramp=3.0)
+    
+    print ' RUN CASE M2 = ', M20
     
     make_ini(rootdir, s_rho=30, theta_s = 3.0, theta_b = 0.4, hc = 5.0,
              Vtransform=1, Vstretching=1,
@@ -79,6 +82,13 @@ def run_case(rootdir='./project',
     rin_3d['Mm'] = shp[1]
     rin_3d['N'] = shp[0]
     
+    rin_3d['NTIMES'] = int(86400 * ndays / dt)
+    rin_3d['DT'] = dt
+    rin_3d['NDTFAST'] = int(30)
+    rin_3d['NHIS'] = int((86400.0 / dt) / 8.0)
+    rin_3d['NAVG'] = int((86400.0 / dt) * 3.0)
+    rin_3d['NDIA'] = int((86400.0 / dt) * 1.0)
+    
     infile = os.path.join(rootdir, 'ocean_shelfstrat.in')
     outfile = os.path.join(rootdir, 'ocean_shelfstrat.out')
     rin_3d.write(infile)
@@ -98,8 +108,12 @@ if __name__ == '__main__':
                         help='Horizontal stratification parameter (default=1e-6)')
     parser.add_argument('--N2', type=float, default=1e-4, 
                         help='Vertical stratification parameter (default=1e-6)')
+    parser.add_argument('--f', type=float, default=1e-4, 
+                        help='Coreolis parameter (default=1e-4)')
+    parser.add_argument('--Lm', type=int, default=128, 
+                        help='Number of x-grid points')
     parser.add_argument('--rootdir', type=str, default='./project/test', 
                         help='Simulation root directory.')
     args = parser.parse_args()
     
-    run_case(rootdir=args.rootdir, M20=args.M2, N20=args.N2)
+    run_case(rootdir=args.rootdir, M20=args.M2, N20=args.N2, f=args.f)

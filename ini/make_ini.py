@@ -10,7 +10,7 @@ def make_ini(rootdir='../project/',
              s_rho=30, theta_s = 3.0, theta_b = 0.4, hc = 5.0,
              Vtransform=1, Vstretching=1,
              R0=1027.0, T0=25.0, S0=35.0, TCOEF=1.7e-4, SCOEF=7.6e-4,
-             M20=1e-6, M2_yo=50e3, M2_r=5e3,
+             M20=1e-7, M2_yo=50e3, M2_r=5e3,
              N20=1e-4, N2_zo=50.0, N2_r=50.0):
     '''
     Create an initialization file.
@@ -45,6 +45,7 @@ def make_ini(rootdir='../project/',
     s = np.cumsum(M2 * dy / (g * beta), axis=0)
     s -= s[-1] - S0
     s = s * np.ones((s_rho, 1, 1), 'd')
+    print 'Coastal salinity: ', s.min(), ' for M2=',M20
     
     z = octant.depths.get_zrho(Vtransform, Vstretching, s_rho, theta_s, theta_b, grd.h, hc)
     Hz = octant.depths.get_Hz(Vtransform, Vstretching, s_rho, theta_s, theta_b, grd.h, hc)
