@@ -7,7 +7,7 @@ import os
 import cPickle
 
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import netCDF4
 
 import octant
@@ -44,19 +44,19 @@ def make_grd(rootdir = '../project/',
     cff2 = Hmin
     grd.h = np.maximum(cff1, cff2)
     
-    plt.ioff()
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(grd.x_psi/1000.0, grd.y_psi/1000.0, '-k', linewidth=0.1)
-    ax.plot(grd.x_psi.T/1000.0, grd.y_psi.T/1000.0, '-k', linewidth=0.1)
-    hm = np.ma.masked_where(grd.mask==0, grd.h)
-    pc = ax.pcolormesh(xvert/1000.0, yvert/1000.0, hm)
-    plt.colorbar(pc, orientation='horizontal')
-    ax.set_xlim(0, xvert.max()/1000.0)
-    ax.set_ylim(0, yvert.max()/1000.0)
-    ax.set_aspect(1.0)
-    plt.savefig(rootdir + '/grd.png', dpi=300)
-    plt.close(fig)
+    # plt.ioff()
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111)
+    # ax.plot(grd.x_psi/1000.0, grd.y_psi/1000.0, '-k', linewidth=0.1)
+    # ax.plot(grd.x_psi.T/1000.0, grd.y_psi.T/1000.0, '-k', linewidth=0.1)
+    # hm = np.ma.masked_where(grd.mask==0, grd.h)
+    # pc = ax.pcolormesh(xvert/1000.0, yvert/1000.0, hm)
+    # plt.colorbar(pc, orientation='horizontal')
+    # ax.set_xlim(0, xvert.max()/1000.0)
+    # ax.set_ylim(0, yvert.max()/1000.0)
+    # ax.set_aspect(1.0)
+    # plt.savefig(rootdir + '/grd.png', dpi=300)
+    # plt.close(fig)
     
     print 'pickling grid..'
     f = open(os.path.join(rootdir, 'grd.pickle'), 'w')

@@ -41,7 +41,7 @@ def get_suffix(**kwargs):
     
 def qsub_case(f, M2, N2):
     suffix = get_suffix(f=f, M2=M2, N2=N2)
-    rootdir = './simulations/shelfstrat%s' % suffix
+    rootdir = './simulations-balanced/shelfstrat%s' % suffix
     
     Ri = N2 * f**2 / M2**2
     phi = M2 * 1e-3 * np.sqrt(Ri) / f**2

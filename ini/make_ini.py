@@ -11,7 +11,8 @@ def make_ini(rootdir='../project/',
              Vtransform=1, Vstretching=1,
              R0=1027.0, T0=25.0, S0=35.0, TCOEF=1.7e-4, SCOEF=7.6e-4,
              M20=1e-7, M2_yo=50e3, M2_r=5e3,
-             N20=1e-4, N2_zo=50.0, N2_r=50.0):
+             N20=1e-4, N2_zo=50.0, N2_r=50.0,
+             balanced_run=True):
     '''
     Create an initialization file.
     
@@ -92,7 +93,17 @@ def make_ini(rootdir='../project/',
     write_nc_var(s, 'salt', ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'), 'PSU')
     write_nc_var(t, 'temp', ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'), 'degC')
     
-    write_nc_var(0.0, 'u', ('ocean_time', 's_rho', 'eta_u', 'xi_u'), 'm s-1')
+    if balanced_run:
+        rhs = M2 * Hz / grd.f
+        u_z = 0.5 * (rhs[:, :, 1:] + rhs[:, :, :-1])
+        u = np.cumsum(u_z, axis=0)
+        ubottom = np.zeros((1, u.shape[1], u.shape[2]))
+        u = np.concatenate( (ubottom, u) )
+        u = 0.5*(u[1:]+u[:-1])
+    else:
+        u = 0
+    
+    write_nc_var(u, 'u', ('ocean_time', 's_rho', 'eta_u', 'xi_u'), 'm s-1')
     write_nc_var(0.0, 'v', ('ocean_time', 's_rho', 'eta_v', 'xi_v'), 'm s-1')
     
     write_nc_var(0.0, 'zeta', ('ocean_time', 'eta_rho', 'xi_rho'), 'm')
