@@ -8,6 +8,9 @@ Copyright (c) 2007 Texas A&M Univsersity. All rights reserved.
 Release under MIT license.
 """
 
+import matplotlib
+matplotlib.use('Agg')
+
 import os
 
 from grd import make_grd
@@ -48,7 +51,7 @@ class ROMS_in(object):
 
 
 def run_case(rootdir='./project',
-             M20=1e-6, N20=1e-4, f=1e-4,
+             M20=1e-6, N20=1e-4, f=1e-4, z0=0.003,
              shp = (30, 128, 256),
              dt=30.0, ndays=30):
     
@@ -104,6 +107,8 @@ if __name__ == '__main__':
     import argparse
     
     parser = argparse.ArgumentParser()
+    parser.add_argument('--z0', type=float, default=0.003, 
+                        help='Bottom roughness parameter (default=0.003)')
     parser.add_argument('--M2', type=float, default=1e-6, 
                         help='Horizontal stratification parameter (default=1e-6)')
     parser.add_argument('--N2', type=float, default=1e-4, 

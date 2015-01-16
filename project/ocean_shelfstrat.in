@@ -201,7 +201,8 @@
 
         RDRG == 3.0d-04                    ! m/s
        RDRG2 == 3.0d-03                    ! nondimensional
-         Zob == 0.003d0                    ! m
+!         Zob == 0.003d0                    ! m
+         Zob == 0.00001d0                    ! m
          Zos == 0.02d0                     ! m
 
 ! Height (m) of atmospheric measurements for Bulk fluxes parameterization.

@@ -41,7 +41,7 @@ def get_suffix(**kwargs):
     
 def qsub_case(f, M2, N2):
     suffix = get_suffix(f=f, M2=M2, N2=N2)
-    rootdir = './simulations/shelfstrat%s' % suffix
+    rootdir = './simulations_z0_0.0001/shelfstrat%s' % suffix
     
     Ri = N2 * f**2 / M2**2
     phi = M2 * 1e-3 * np.sqrt(Ri) / f**2
@@ -55,22 +55,37 @@ def qsub_case(f, M2, N2):
     os.system('qsub shelfstrat%s.sh' % suffix)
 
 
+# ### Vary Richardson number alone, keep S constant.
+# qsub_case(M2= 1.00e-07, N2= 1.00e-04, f= 1.00e-04)
+# qsub_case(M2= 2.00e-07, N2= 1.00e-04, f= 1.00e-04)
+# qsub_case(M2= 5.00e-07, N2= 1.00e-04, f= 1.00e-04)
+# # qsub_case(M2= 1.00e-06, N2= 1.00e-04, f= 1.00e-04)   # base case
+# qsub_case(M2= 1.00e-06, N2= 1.00e-04, f= 1.00e-04)
+# qsub_case(M2= 2.00e-06, N2= 1.00e-04, f= 1.00e-04)
+# qsub_case(M2= 5.00e-06, N2= 1.00e-04, f= 1.00e-04)
+
+### Keep delta constant, Same Richardson number
+qsub_case(M2= 0.30e-06, N2= 0.30e-04, f= np.sqrt(0.30e-08))
+qsub_case(M2= 0.50e-06, N2= 0.50e-04, f= np.sqrt(0.50e-08))
+# qsub_case(M2= 1.00e-06, N2= 1.00e-04, f= 1.00e-04)  # base case
+qsub_case(M2= 3.00e-06, N2= 3.00e-04, f= np.sqrt(3.00e-08))
+qsub_case(M2= 5.00e-06, N2= 5.00e-04, f= np.sqrt(5.00e-08))
 
 
-qsub_case(M2=1.00e-06, N2=1.00e-04, f=1.00e-04)
-qsub_case(M2=5.00e-07, N2=1.00e-04, f=5.00e-05)
-qsub_case(M2=2.00e-07, N2=1.00e-04, f=2.00e-05)
-qsub_case(M2=1.00e-07, N2=1.00e-04, f=1.00e-05)
-qsub_case(M2=7.07e-07, N2=1.00e-04, f=1.00e-04)
-qsub_case(M2=3.54e-07, N2=1.00e-04, f=5.00e-05)
-qsub_case(M2=1.41e-07, N2=1.00e-04, f=2.00e-05)
-qsub_case(M2=7.07e-08, N2=1.00e-04, f=1.00e-05)
-qsub_case(M2=4.47e-07, N2=1.00e-04, f=1.00e-04)
-qsub_case(M2=2.24e-07, N2=1.00e-04, f=5.00e-05)
-qsub_case(M2=8.94e-08, N2=1.00e-04, f=2.00e-05)
-qsub_case(M2=4.47e-08, N2=1.00e-04, f=1.00e-05)
-qsub_case(M2=3.16e-07, N2=1.00e-04, f=1.00e-04)
-qsub_case(M2=1.58e-07, N2=1.00e-04, f=5.00e-05)
-qsub_case(M2=6.32e-08, N2=1.00e-04, f=2.00e-05)
-qsub_case(M2=3.16e-08, N2=1.00e-04, f=1.00e-05)
+# qsub_case(M2=1.00e-06, N2=1.00e-04 / 5.0, f=1.00e-04 * 5.0)
+# qsub_case(M2=5.00e-07, N2=1.00e-04 / 5.0, f=5.00e-05 * 5.0)
+# qsub_case(M2=2.00e-07, N2=1.00e-04 / 5.0, f=2.00e-05 * 5.0)
+# qsub_case(M2=1.00e-07, N2=1.00e-04 / 5.0, f=1.00e-05 * 5.0)
+# qsub_case(M2=7.07e-07, N2=1.00e-04 / 5.0, f=1.00e-04 * 5.0)
+# qsub_case(M2=3.54e-07, N2=1.00e-04 / 5.0, f=5.00e-05 * 5.0)
+# qsub_case(M2=1.41e-07, N2=1.00e-04 / 5.0, f=2.00e-05 * 5.0)
+# qsub_case(M2=7.07e-08, N2=1.00e-04 / 5.0, f=1.00e-05 * 5.0)
+# qsub_case(M2=4.47e-07, N2=1.00e-04 / 5.0, f=1.00e-04 * 5.0)
+# qsub_case(M2=2.24e-07, N2=1.00e-04 / 5.0, f=5.00e-05 * 5.0)
+# qsub_case(M2=8.94e-08, N2=1.00e-04 / 5.0, f=2.00e-05 * 5.0)
+# qsub_case(M2=4.47e-08, N2=1.00e-04 / 5.0, f=1.00e-05 * 5.0)
+# qsub_case(M2=3.16e-07, N2=1.00e-04 / 5.0, f=1.00e-04 * 5.0)
+# qsub_case(M2=1.58e-07, N2=1.00e-04 / 5.0, f=5.00e-05 * 5.0)
+# qsub_case(M2=6.32e-08, N2=1.00e-04 / 5.0, f=2.00e-05 * 5.0)
+# qsub_case(M2=3.16e-08, N2=1.00e-04 / 5.0, f=1.00e-05 * 5.0)
 

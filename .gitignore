@@ -1,0 +1,11 @@
+shelfstrat.[eo]*
+shelfstrat*.sh
+*.nc
+*.pyc
+*~
+*.pdf
+*.png
+project/Build
+project/coawst?
+ocean_shelfstrat.*
+grd.pickle
