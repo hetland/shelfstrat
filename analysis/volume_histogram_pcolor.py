@@ -27,9 +27,7 @@ alpha = 1e-3
 params['Ri'] = params['N2'] * params['f']**2 / params['M2']**2
 params['phi'] = params['M2'] * alpha * np.sqrt(params['Ri']) / params['f']**2
 
-timesteps = 28 * 7
-
-bins_M2 = np.linspace(-8.5, -2.5, 301)
+bins_M2 = np.linspace(-8., -6., 301)
 bins_M2_c = 0.5 * (bins_M2[1:] + bins_M2[:-1])
 
 bins_N2 = np.linspace(-6, 0, 201)
@@ -42,6 +40,7 @@ bins_phi = np.linspace(-2, 2, 201)
 bins_phi_c = 0.5 * (bins_phi[1:] + bins_phi[:-1])
 
 nc = netCDF4.Dataset(args.filename)
+time = nc.variables['ocean_time'][:]/86400.0
 
 pm = nc.variables['pm'][:]
 pn = nc.variables['pn'][:]
@@ -53,8 +52,9 @@ N2hist = []
 Rihist = []
 phihist = []
 
+step = 20
 
-for tidx in range(timesteps):
+for tidx in range(len(time))[::step]:
     zr = octant.roms.nc_depths(nc, grid='rho')[tidx]
     
     rho = nc.variables['rho'][tidx]
@@ -80,15 +80,12 @@ for tidx in range(timesteps):
     Rihist.append( np.histogram(np.log10(Ri[:, :46, :]), bins=bins_Ri, weights=dV[:, :46, :])[0] )
     phihist.append( np.histogram(np.log10(phi[:, :46, :]), bins=bins_phi, weights=dV[:, :46, :])[0] )
     
-    print ' timestep %03d/%d' % (tidx+1, timesteps)
+    print ' timestep %03d/%d' % (tidx+1, len(time)/step)
 
 M2hist = np.asarray(M2hist)
 N2hist = np.asarray(N2hist)    
 Rihist = np.asarray(Rihist)    
 phihist = np.asarray(phihist)    
-
-
-t = nc.variables['ocean_time'][:tidx+1]/86400
 
 ###################################
 # Plotting
@@ -103,6 +100,8 @@ ax1 = fig.add_subplot(411)
 ax2 = fig.add_subplot(412)
 ax3 = fig.add_subplot(413)
 ax4 = fig.add_subplot(414)
+
+t = time[::step]
 
 pcm1 = ax1.contourf(t, bins_M2_c, M2hist.T, np.linspace(0, 1e10, 20), cmap=plt.cm.Reds, extend='max')
 ax1.set_ylabel(r'log$_{10}$(M$^2$)')

@@ -8,7 +8,7 @@ def make_frc(rootdir='../project/',
              s_rho=30, 
              sustr0=0.0,
              svstr0=0.0,
-             Tramp=3.0):
+             Tramp=1.0):
     
     assert os.path.exists(rootdir), ('%s does not exist.' % rootdir)
     
@@ -17,7 +17,6 @@ def make_frc(rootdir='../project/',
     # one year of forcing, just to be sure.
     t = np.linspace(0, 365, 365*24)
     
-    ### write river file
     print 'Writing netcdf FRC file..'
     
     shp = grd.x_rho.shape
@@ -29,7 +28,7 @@ def make_frc(rootdir='../project/',
     nc.type = 'ROMS FRC file'
     
     #########################################
-    # River forcing
+    # Wind forcing
     
     nc.createDimension('xi_rho', shp[1])
     nc.createDimension('eta_rho', shp[0])
@@ -41,15 +40,16 @@ def make_frc(rootdir='../project/',
             nc.variables[name].units = units
         nc.variables[name][:] = var
     
-    ramp = 1.0 - np.exp(t/Tramp)
+    # ramp = 1.0 - np.exp(-t/Tramp)
+    ramp = np.sin(t*2.0*np.pi/7.0)**2 * np.sin(t*2.0*np.pi/7.0).clip(0, 1)   # Storms. mean = 0.2120 of the max value.
     sustr = sustr0 * ramp
     svstr = svstr0 * ramp
     
     nc.createDimension('sms_time', len(t))
     
     write_nc_var(t, 'sms_time', ('sms_time', ), 'days')
-    write_nc_var(sustr, 'svstr', ('sms_time', ), 'days')
-    write_nc_var(svstr, 'sustr', ('sms_time', ), 'days')
+    write_nc_var(sustr, 'sustr', ('sms_time', ), 'days')
+    write_nc_var(svstr, 'svstr', ('sms_time', ), 'days')
     
     
     nc.close()

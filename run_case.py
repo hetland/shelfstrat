@@ -52,17 +52,18 @@ class ROMS_in(object):
 
 def run_case(rootdir='./project',
              M20=1e-6, N20=1e-4, f=1e-4, z0=0.003,
+             sustr0=0.0, svstr0=0.0,
              shp = (30, 128, 256),
-             dt=30.0, ndays=30):
+             dt=30.0, ndays=60):
     
     # Make grid
     grdshp = (shp[1]+3, shp[2]+3)
     make_grd(rootdir, Hmin=5.0, alpha=0.001, f=f,
              dx=1e3, dy=1e3, shp=grdshp)
     
-    make_frc(rootdir, s_rho=shp[0], sustr0=0.0, svstr0=0.0, Tramp=3.0)
+    make_frc(rootdir, s_rho=shp[0], sustr0=sustr0, svstr0=svstr0, Tramp=1.0)
     
-    print ' RUN CASE M2 = ', M20
+    print ' RUN CASE sustr = ', sustr0
     
     make_ini(rootdir, s_rho=30, theta_s = 3.0, theta_b = 0.4, hc = 5.0,
              Vtransform=1, Vstretching=1,
@@ -92,13 +93,17 @@ def run_case(rootdir='./project',
     rin_3d['NAVG'] = int((86400.0 / dt) * 3.0)
     rin_3d['NDIA'] = int((86400.0 / dt) * 1.0)
     
+    rin_3d['Zob'] = z0
+    
     infile = os.path.join(rootdir, 'ocean_shelfstrat.in')
     outfile = os.path.join(rootdir, 'ocean_shelfstrat.out')
     rin_3d.write(infile)
-    # os.system('/usr/mpi/gcc/openmpi-1.4.3/bin/mpiexec -np 8 ./project/coawstM %s' % infile)
-    # os.system('./project/coawstS < %s' % infile)
+    print infile
     
     print ' ### Running 3D ROMS...'
+    os.system('/usr/mpi/gcc/openmpi-1.4.3/bin/mpiexec -np 8 ./project/coawstM %s > %s &' % (infile, outfile))
+    # os.system('./project/coawstS < %s' % infile)
+    
     return 0
     
 
@@ -115,10 +120,16 @@ if __name__ == '__main__':
                         help='Vertical stratification parameter (default=1e-6)')
     parser.add_argument('--f', type=float, default=1e-4, 
                         help='Coreolis parameter (default=1e-4)')
+    parser.add_argument('--sustr', type=float, default=0.0, 
+                        help='Along-shore wind stress (default=0.0)')
+    parser.add_argument('--svstr', type=float, default=0.0, 
+                        help='Along-shore wind stress (default=0.0)')
     parser.add_argument('--Lm', type=int, default=128, 
                         help='Number of x-grid points')
     parser.add_argument('--rootdir', type=str, default='./project/test', 
                         help='Simulation root directory.')
     args = parser.parse_args()
     
-    run_case(rootdir=args.rootdir, M20=args.M2, N20=args.N2, f=args.f)
+    print args
+    
+    run_case(rootdir=args.rootdir, M20=args.M2, N20=args.N2, f=args.f, sustr0=args.sustr, svstr0=args.svstr, z0=args.z0)

@@ -16,32 +16,18 @@ args = parser.parse_args()
 
 cases = case_dictionary(args.directory)
 
-fig, axs = plt.subplots(4, 5, figsize=(13.5, 6))
-axs = np.flipud(axs)
-
-ax_crnr = axs[0, 0]
-
 ##### TRY BOTH FILES SETS TO EXAMINE DIFFERENCE. MAYBE USE THE UNION.
 
-# files = [cases.find(Ri=Ri, delta=delta, N2=1e-4)
-#                 for delta in [0.1, 0.2, 0.3, 0.5]
-#                 for Ri in [1, 2, 3, 5, 10]]
+files_delta = [cases.find(Ri=Ri, delta=delta, N2=1e-4)
+                for delta in [0.1, 0.2, 0.3, 0.5]
+                for Ri in [1, 2, 3, 5, 10]]
 
-files = [cases.find(Ri=Ri, S=S, N2=1e-4)
+files_S = [cases.find(Ri=Ri, S=S, N2=1e-4)
             for S in [0.1, 0.2, 0.3, 0.5]
             for Ri in [1, 2, 3, 5, 10]]
 
-
-delta_colors = {'0.1': (1.0, 0.0, 0.0), 
-                '0.2': (0.8, 0.1, 0.2),
-                '0.3': (0.2, 0.1, 0.8),
-                '0.5': (0.0, 0.0, 1.0),}
-
-delta_linestyles = {'0.1': '-', 
-                    '0.2': '--',
-                    '0.3': '-.',
-                    '0.5': '-',}
-
+files = list(np.unique(files_S + files_delta))
+files = [[file] for file in files]
 
 def polyfit_omega(n=6):
     'fit an order-n polynomial to the maximum growth rate as a function of delta, the slope parameter.'
@@ -82,12 +68,11 @@ ekes = []
 mkes = []
 tkes = []
 norms = []
+len_flags = []
+timescales = []
+times = []
 
-fig_all = plt.figure()
-ax_all_unnormed = fig_all.add_subplot(211)
-ax_all_normed = fig_all.add_subplot(212)
-
-for ax, file in zip(axs.flat, files):
+for file in files:
     
     hisfilename = os.path.join(args.directory, file[0], 'shelfstrat_his.nc')
     params = cases[file[0]]
@@ -97,6 +82,7 @@ for ax, file in zip(axs.flat, files):
     omega_dim = 86400.0 * omega * params['f'] / np.sqrt(params['Ri'])
     
     timescale = timescale_factor / omega_dim
+    timescales.append(timescale)
     
     nc = netCDF4.Dataset(hisfilename)
     time = nc.variables['ocean_time'][:] / 86400.0
@@ -104,14 +90,17 @@ for ax, file in zip(axs.flat, files):
     tidx = np.where( time >= timescale )[0]
     if len(tidx) == 0:
         tidx = len(time) - 1
+        len_flags.append(0)
     else:
         tidx = tidx.min()
+        len_flags.append(1)
 
     print('   time index: {0:d}/{1:d} -- {2:f}'.format(tidx, len(time), time[tidx]))
     
     u = nc.variables['u'][:tidx, -1, :, :]
     v = nc.variables['v'][:tidx, -1, :, :]
     time = time[:tidx]
+    times.append(time[-1])
     
     u, v = octant.tools.shrink(u, v)
     
@@ -124,26 +113,7 @@ for ax, file in zip(axs.flat, files):
     mke = 0.5*(umean**2)
     
     norm = mke.mean(axis=-1).mean(axis=-1)[0]
-    
-    ax.plot(time*omega_dim, tke.mean(axis=-1).mean(axis=-1)/norm, '-k')
-    ax.plot(time*omega_dim, eke.mean(axis=-1).mean(axis=-1)/norm, '-r')
-    ax.plot(time*omega_dim, mke.mean(axis=-1).mean(axis=-1)/norm, '-b')
-
-    if params['S'] == 0.1:
-        ax_crnr.plot(time*omega_dim, eke.mean(axis=-1).mean(axis=-1)/norm/np.sqrt(params['Ri']), '-r', lw=0.25)
-
-    delta_str = '%0.1f' % params['S']
-    ax_all_normed.plot(time*omega_dim, eke.mean(axis=-1).mean(axis=-1)/norm/np.sqrt(params['Ri']),
-                    linestyle=delta_linestyles[delta_str], color=delta_colors[delta_str])
-
-    ax_all_unnormed.plot(time, eke.mean(axis=-1).mean(axis=-1)/norm/np.sqrt(params['Ri']),
-                    linestyle=delta_linestyles[delta_str], color=delta_colors[delta_str])
-
-    ax.plot([1, 2], [1, 1], 'k-', alpha=0.5, lw=4)
-
-    ax.set_ylim(0, 2)
-    ax.set_xlim(0, 40.0)
-    
+        
     Ris.append(params['Ri'])
     deltas.append(params['delta'])
 
@@ -151,50 +121,51 @@ for ax, file in zip(axs.flat, files):
     mkes.append( (mke.mean(axis=-1).mean(axis=-1)).max() )
     tkes.append( (tke.mean(axis=-1).mean(axis=-1)).max() )
     
-    # # 7 days energy
+    # #  energy at days == ref_timescale
     # ekes.append( (eke.mean(axis=-1).mean(axis=-1)/norm)[tidx] )
     # mkes.append( (mke.mean(axis=-1).mean(axis=-1))[tidx] )
     # tkes.append( (tke.mean(axis=-1).mean(axis=-1))[tidx] )
     
     norms.append( norm )
     
-    if ax == ax_crnr:
-        ax.set_xlabel('Time [days]')
-        ax.set_ylabel('Normalized energy')
-    else:
-        # ax.set_xticklabels([])
-        ax.set_yticklabels([])
-
-omega_ref = np.polyval(omega_poly, ref_delta) # non-dim
-omega_dim_ref = 86400.0 * omega_ref * ref_f / np.sqrt(ref_Ri)  # rad/days
-ax_all_normed.plot([ref_timescale*omega_dim_ref, ref_timescale*omega_dim_ref], [0, 0.8], '--k', lw=3)
-
-ax_all_normed.set_ylim(0, 0.8)
-ax_all_normed.set_xlabel('Normalized time')
-ax_all_normed.set_ylabel('Normalized eke')
-
-ax_all_unnormed.set_ylim(0, 0.8)
-ax_all_unnormed.set_xlabel('Time [days]')
-ax_all_unnormed.set_ylabel('Normalized eke')
-
-fig_all.subplots_adjust(left=0.1, bottom=0.095, right=0.95, top=0.95,
-                  wspace=0.05, hspace=0.3)
 
 Ri = np.array(Ris)
 delta = np.array(deltas)
 eke = np.array(ekes)
 S = delta/np.sqrt(Ri)
-p = np.polyfit(np.log(S), eke, 1)
+len_flag = np.array(len_flags)
+timescale = np.array(timescales)
+time = np.array(times)
 
-# fig = plt.figure()
-# ax = fig.add_subplot(111)
-# ax.semilogx(S, eke, 'ko')
-# logS = np.linspace(-5, 0, 50)
-# ax.plot(np.exp(logS), p[0]*logS + p[1], 'k--')
-# ax.set_xlim(1e-2, 1)
-# ax.set_ylim(0, 2)
-# r = np.corrcoef(np.log(S), eke)[0, 1]
-# ax.set_xlabel('S')
-# ax.set_ylabel('Normalized eddy kinetic energy')
-#
-# plt.show()
+np.save('Ri', Ri)
+np.save('S', S)
+np.save('eke', eke)
+np.save('len_flag', len_flag)
+np.save('timescale', timescale)
+np.save('time', time)
+
+
+idx_time = (time/timescale) > 0.95
+
+idx = np.isclose(S, 0.1, rtol=1e-2)
+idx = idx | np.isclose(S, 0.2, rtol=1e-2)
+idx = idx | np.isclose(S, 0.3, rtol=1e-2)
+idx = idx | np.isclose(S, 0.5, rtol=1e-2)
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+
+ax.semilogx(S, eke, 'k.')
+ax.semilogx(S[idx_time], eke[idx_time], 'ro')
+
+p = np.polyfit(np.log(S[idx_time]), eke[idx_time], 1)
+
+logS = np.linspace(-5, 0, 50)
+ax.plot(np.exp(logS), p[0]*logS + p[1], 'k--')
+ax.set_xlim(1e-2, 1)
+ax.set_ylim(0, 2)
+r = np.corrcoef(np.log(S), eke)[0, 1]
+ax.set_xlabel('S')
+ax.set_ylabel('Normalized eddy kinetic energy')
+
+plt.show()

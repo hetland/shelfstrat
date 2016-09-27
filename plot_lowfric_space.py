@@ -1,4 +1,3 @@
-
 import os
 import argparse
 
@@ -11,7 +10,8 @@ from case_dictionary import case_dictionary
 lowfric_cases = case_dictionary('sims_lowfric')
 vlowfric_cases = case_dictionary('sims_vlfric')
 
-tidx = 112   # 14 days
+#tidx = 112   # 14 days
+tidx = -1
 
 fig, axs = plt.subplots(6, 2, figsize=(6, 10))
 axs = np.flipud(axs)
@@ -53,13 +53,15 @@ for ax, file in zip(axs.flat, files):
     Uscale = np.sqrt(params['N2']/params['Ri'])*50.0
     Ladv = Uscale / params['f']
     
-#     plt.text(.05, 0.95, r''' $Ri$=%4.2f
-# $\delta$=%4.2f
-# ''' % (params['Ri'], params['delta']),
-#           horizontalalignment='left',
-#           verticalalignment='top',
-#           fontsize=10,
-#           transform = ax.transAxes)
+    plt.text(.05, 0.95, r''' $Ri$=%4.2f
+$\delta$=%4.2f
+$S$=%4.2f
+tidx=%d
+''' % (params['Ri'], params['delta'], params['S'], len(time)),
+          horizontalalignment='left',
+          verticalalignment='top',
+          fontsize=10,
+          transform = ax.transAxes)
 #
 #  
 #     plt.text(0.05, 0.95, r''' $R_d$=%4.2f km

@@ -7,7 +7,6 @@ import numpy as np
 import netCDF4
 
 import octant
-import cmocean
 
 from case_dictionary import case_dictionary
 
@@ -90,9 +89,6 @@ for ax, file in zip(axs.flat, files):
     nc = netCDF4.Dataset(hisfilename)
     time = nc.variables['ocean_time'][:] / 86400.0
     
-    if timescale > 365:
-        timescale = 365
-    
     tidx = np.where( time >= timescale )[0]
     if len(tidx) == 0:
         tidx = len(time) - 1
@@ -101,11 +97,15 @@ for ax, file in zip(axs.flat, files):
     
     print('   {0:d}/{1:d} -- {2:f}'.format(tidx, len(time), time[tidx]))
     
-    x = nc.variables['x_rho'][:]/1000.0
-    y = nc.variables['y_rho'][:]/1000.0
-    sss = nc.variables['salt'][tidx, -1, :, :]
+    x = nc.variables['x_psi'][:]/1000.0
+    y = nc.variables['y_psi'][:]/1000.0
     
-    ax.contourf(x, y, sss, 10, cmap=cmocean.cm.salinity)
+    u = nc.variables['u'][tidx, -1, :, :]
+    v = nc.variables['v'][tidx, -1, :, :]
+    
+    vort = (np.diff(v, axis=-1) - np.diff(u, axis=-2))/1000.0
+    
+    ax.contourf(x, y, vort/params['f'], 11, cmap=plt.cm.RdBu_r, vmin=-3, vmax=3)
     ax.set_aspect(1.0)
     
     Rd = np.sqrt(params['N2']) * 50.0 / params['f']
@@ -114,8 +114,8 @@ for ax, file in zip(axs.flat, files):
     
     ax.text(0.05, 0.9, 
          # '$R_d$=%5.2f km\n$L_{adv}$=%5.2f km\n$T$=%5.2f days\nTo=%5.2f days'% (Rd/1000.0, Ladv/1000.0, time[tidx],timescale),
-        '$R_d$=%5.2f km\n$L_i$=%5.2f km\n$T$ =%5.2f days'% (Rd/1000.0, Ladv/1000.0, time[tidx]),
-         # '$R_d$=%5.2f km\n$T$=%6.2f days\n$T_0$=%6.2f'% (Rd/1000.0, time[tidx], timescale),
+         # '$R_d$=%5.2f km\n$L_{adv}$=%5.2f km\n$T$=%5.2f days'% (Rd/1000.0, Ladv/1000.0, time[tidx]),
+         '$R_d$=%5.2f km\n$T$=%6.2f days\n$T_0$=%6.2f'% (Rd/1000.0, time[tidx], timescale),
          horizontalalignment='left', 
          verticalalignment='top',
          transform=ax.transAxes,
@@ -130,7 +130,7 @@ for ax, file in zip(axs.flat, files):
     
     paramstrs = expsplit([params['M2'], params['f']]) + (params['delta'],)
     ax.text(0.5, 0.9, 
-         '$M^2\!$=%5.2fx10$^{%d}$ s$^{-2}$\n$f\,$=%5.2fx10$^{%d}$ s$^{-1}$\n$\delta\,$=%5.2f' % paramstrs,
+         '$M^2$ = %5.2fx10$^{%d}$ s$^{-2}$\n$f$ = %5.2fx10$^{%d}$ s$^{-1}$\n$\delta$ = %5.2f' % paramstrs,
          horizontalalignment='left', 
          verticalalignment='top',
          transform=ax.transAxes,

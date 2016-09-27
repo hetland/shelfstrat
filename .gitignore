@@ -1,6 +1,9 @@
 shelfstrat.[eo]*
 shelfstrat*.sh
+sim*
 *.nc
+*.npy
+*.dat
 *.pyc
 *~
 *.pdf
